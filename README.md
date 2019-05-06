@@ -145,6 +145,101 @@ Go to the XL Deploy GUI, select _Explorer_ in the top menu bar and navigate to _
 
 # Exercise 5: Define a Kubernetes environment
 
+Now that we have an application, let's define an environment to which we can deploy that application.
+
+Before we start, let's check whehter your Kubernetes environment has been setup correctly. Execute the following command to see all the pods running in your Kubernetes system:
+
+```
+$ kubectl get --all-namespaces pods
+```
+
+The output should look something like this:
+
+```
+NAMESPACE     NAME                                         READY   STATUS              RESTARTS   AGE
+docker        compose-74649b4db6-8nvg9                     0/1     MatchNodeSelector   0          152d
+docker        compose-74649b4db6-8rwbc                     0/1     MatchNodeSelector   0          48d
+docker        compose-74649b4db6-95cxk                     0/1     MatchNodeSelector   0          118d
+docker        compose-74649b4db6-ckd2s                     1/1     Running             0          2d
+docker        compose-74649b4db6-ns9qt                     0/1     MatchNodeSelector   0          105d
+docker        compose-74649b4db6-s5g2g                     0/1     MatchNodeSelector   0          118d
+docker        compose-api-6bdd8b4dbb-4h829                 0/1     MatchNodeSelector   0          105d
+docker        compose-api-6bdd8b4dbb-7lr95                 1/1     Running             0          40d
+docker        compose-api-6bdd8b4dbb-7m2mj                 0/1     MatchNodeSelector   0          48d
+docker        compose-api-6bdd8b4dbb-9dpcq                 0/1     MatchNodeSelector   0          118d
+docker        compose-api-6bdd8b4dbb-dclmq                 0/1     MatchNodeSelector   0          152d
+docker        compose-api-6bdd8b4dbb-zwcl6                 0/1     MatchNodeSelector   0          118d
+kube-system   etcd-docker-for-desktop                      1/1     Running             0          208d
+kube-system   kube-apiserver-docker-for-desktop            1/1     Running             0          111d
+kube-system   kube-controller-manager-docker-for-desktop   1/1     Running             0          111d
+kube-system   kube-dns-86f4d74b45-52n5v                    3/3     Running             0          208d
+kube-system   kube-proxy-nk45x                             1/1     Running             0          111d
+kube-system   kube-scheduler-docker-for-desktop            1/1     Running             0          111d
+kube-system   kubernetes-dashboard-669f9bbd46-nzbpf        1/1     Running             0          89d
+kube-system   tiller-deploy-9cb565677-nt57k                1/1     Running             0          47d
+```
+
+In the `scratch` directory, run the blueprint command one more time:
+
+```
+$ ./xlw blueprint
+```
+
+Now select the `kubernetes/environment` blueprint. This blueprint will create XL YAML files that define an environment in XL Deploy that matches the current configuration of your '~/.kube/config` file. Accept all defaults and then apply the XL YAML file that has been created:
+
+```
+$ xl apply -f xebialabs/kubernetes-environment.yaml
+```
+
+In the XL Deploy GUI, under the _Environments_ tree in the package explorer, you should now see an entry for your Kubernetes cluster. If you're using the Kubernetes functionality built into Docker Desktop, it will be called `docker-for-desktop-cluster`.
+
+# Exercise 6: Deploy the Kubernetes application to the Kubernetes cluster
+
+Let's first start the deployment from the XL Deploy GUI.
+
+1. Open the XL Deploy GUI at http://localhost:4516/
+1. Log in with `admin`/`admin`
+1.  In the tree on the left, navigate to _Applications/nginx_.
+1. Click on the three dots behind that entry (the context menu).
+1. Select _Deploy latest (latest)_.
+1. In the next screen, select the environment that you created in the previous exercise.
+1. Click the _Continue_ button in the top right.
+1. In the next screen, click the _Deploy_ button in the top right.
+1. Wait for the spinner to finish spinning and then watch the deployment execute.
+1. When the deployment has finished, press the _Finish_ button.
+
+Let's verify that the application has been deployed correctly. In the command prompt, enter the following command:
+
+```
+$ kubectl get deployment
+```
+
+The output should look something like this:
+
+```
+NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+nginx-deployment   2         2         2            2           24s
+```
+
+Now, let's undeploy the application:
+
+1. Navigate to _Environments/docker-for-desktop-cluster/nginx_
+1. Select _Undeploy_ from the context menu.
+1. In the next screen, click the _Undeploy_ button.
+1. When the undeployment has finished, press the _Finish_ button.
+
+# Exercise 7: Provision a Kubernetes cluster in the cloud
+
+Now that we've seen how an application and a target environment are defined in XL Deploy and how a deployment is executed, let's provision an Kubernetes cluster in the cloud and our application there.
+
+There are currently two blueprints that provide that functionality:
+* The [azure/basic-aks-cluster](https://github.com/xebialabs/blueprints/tree/development/azure/basic-aks-cluster) spins up an Azure AKS cluster with Terraform
+* The [gcp/basic-gke-cluster](https://github.com/xebialabs/blueprints/tree/development/gcp/basic-gke-cluster) blueprint spins up a Google Cloud GKE cluster  with Terraform
+
+A third blueprint that spins up an AWS EKS cluster with CloudFormation is currently being developed.
+
+Pick one of the two available blueprints and follow the instructions to run them.
+
 
 
 
